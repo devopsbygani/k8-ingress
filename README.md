@@ -39,4 +39,8 @@ helm repo add eks https://aws.github.io/eks-charts
 ```bash
 helm install aws-load-balancer-controller eks/aws-load-balancer-controller -n kube-system --set clusterName=expense-1 --set serviceAccount.create=false --set serviceAccount.name=aws-load-balancer-controller
 ```
+* The Above step setup a ALB controller drivers for connectivity between k8 and external ALB service.
 
+### Additional steps:
+* create a ACM certificate for HTTPS:// connectivity. 
+* create a route53 record after ALB is created by chhosing Alisa as Application Load Balancer and select LB .
