@@ -1,0 +1,63 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: app2
+  labels:
+    project: expense
+    app: fronted
+    tier: web
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      project: expense
+      app: fronted
+      tier: web
+  template:
+    metadata:
+      labels:
+        project: expense
+        app: fronted
+        tier: web
+      spec:
+        containers:
+        - name: app2
+          image: foraiprompt/app2:v1
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: app2
+spec:
+  selector:
+    project: expense
+    app: fronted
+    tier: web
+  ports:
+  - name: app2-svc-port
+    protocol: TCP
+    port: 80    # service port
+    targetPort: 80  # container port
+---
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+    name: echoserver
+    annotations:  # check for annotation in guide section from documentation
+        kubernetes.io/ingress.class: alb  # this creates ALB
+        alb.ingress.kubernetes.io/scheme: internet-facing
+        alb.ingress.kubernetes.io/target-type: ip
+        alb.ingress.kubernetes.io/certificate-arn: arn:aws:acm:us-east-1:905418383993:certificate/0a8e24a7-46b3-4e73-90de-4d115b1780e6
+        alb.ingress.kubernetes.io/listen-ports: '[{"HTTPS": 443}]'
+        alb.ingress.kubernetes.io/tags: Environment=dev,Team=test
+        alb.ingress.kubernetes.io/group.name: expense   # this creates a group , if same group is mentioned this will create a new routing rule not a new ALB.
+spec:
+  rules:
+    - host: app2.devgani.online
+      http:
+        paths:
+          - path: /
+            backend:
+              serviceName: app2
+              servicePort: 80
+
