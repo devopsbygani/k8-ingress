@@ -34,8 +34,9 @@ eksctl create iamserviceaccount \
 helm repo add eks https://aws.github.io/eks-charts
 ```
 
-###
+### Install the helm chart if using IAM roles for service accounts.
 
 ```bash
 helm install aws-load-balancer-controller eks/aws-load-balancer-controller -n kube-system --set clusterName=expense-1 --set serviceAccount.create=false --set serviceAccount.name=aws-load-balancer-controller
 ```
+
