@@ -56,13 +56,13 @@ helm install aws-load-balancer-controller eks/aws-load-balancer-controller -n ku
 
 ### delete iam role and recreating.
 
-Step 1: List all versions of the policy.
+### Step 1: List all versions of the policy.
 ```bash
 aws iam list-policy-versions \
   --policy-arn arn:aws:iam::<acoount_id>:policy/AWSLoadBalancerControllerIAMPolicy
 ```
 
-### example output 
+example output 
 ```
 {
   "Versions": [
@@ -82,7 +82,7 @@ aws iam list-policy-versions \
 }
 ```
 
-Step 2: Delete all non-default versions
+### Step 2: Delete all non-default versions
 ```
 aws iam delete-policy-version \
   --policy-arn arn:aws:iam::<acoount_id>:policy/AWSLoadBalancerControllerIAMPolicy \
@@ -95,14 +95,14 @@ aws iam delete-policy-version \
 
 Note : Repeat this until only the default version is left.
 
-*Step 3: Now delete the policy
+### Step 3: Now delete the policy
 
 ```bash
 aws iam delete-policy \
   --policy-arn arn:aws:iam::<acoount_id>:policy/AWSLoadBalancerControllerIAMPolicy
 ```
 if no error skip step4
-step4: Identify attached entities
+### step4: Identify attached entities
 ```
 if getting error An error occurred (DeleteConflict) when calling the DeletePolicy operation: Cannot delete a policy attached to entities.
 ```
@@ -119,7 +119,7 @@ aws iam delete-policy \
   --policy-arn arn:aws:iam::<acoount_id>:policy/AWSLoadBalancerControllerIAMPolicy
 ```
 
-step5: Recreate the policy with the correct content:
+### step5: Recreate the policy with the correct content:
 ```bash
 aws iam create-policy \
   --policy-name AWSLoadBalancerControllerIAMPolicy \
