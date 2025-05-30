@@ -45,3 +45,63 @@ helm install aws-load-balancer-controller eks/aws-load-balancer-controller -n ku
 ### Additional steps:
 * create a ACM certificate for HTTPS:// connectivity. 
 * create a route53 record after ALB is created by chhosing Alisa as Application Load Balancer and select LB .
+
+
+### I faced a issue where it was unable to create a ALB.
+```
+  Warning  FailedDeployModel  40s (x7 over 3m23s)  ingress  (combined from similar events): Failed deploy model due to operation error Elastic Load Balancing v2: CreateTargetGroup, https response error StatusCode: 403, RequestID: 76243322-411a-4a5f-8bb6-bc5f61429c09, api error AccessDenied: User: arn:aws:sts::<account id>:assumed-role/eksctl-expense-addon-iamserviceaccount-kube-s-Role1-3rOnTN0LfaQM/1748622633297434864 is not authorized to perform: elasticloadbalancing:AddTags on resource: arn:aws:elasticloadbalancing:us-east-1:<account id>:targetgroup/k8s-default-app1-c31b714ecc/* because no identity-based policy allows the elasticloadbalancing:AddTags action
+```
+
+## resolution steps.
+
+### delete iam role and recreating.
+
+* Step 1: List all versions of the policy.
+```bash
+aws iam list-policy-versions \
+  --policy-arn arn:aws:iam::905418383993:policy/AWSLoadBalancerControllerIAMPolicy
+```
+### example output 
+```
+{
+  "Versions": [
+    {
+      "VersionId": "v5",
+      "IsDefaultVersion": true
+    },
+    {
+      "VersionId": "v4",
+      "IsDefaultVersion": false
+    },
+    {
+      "VersionId": "v3",
+      "IsDefaultVersion": false
+    }
+  ]
+}
+```
+*Step 2: Delete all non-default versions
+```
+aws iam delete-policy-version \
+  --policy-arn arn:aws:iam::905418383993:policy/AWSLoadBalancerControllerIAMPolicy \
+  --version-id v4
+
+aws iam delete-policy-version \
+  --policy-arn arn:aws:iam::905418383993:policy/AWSLoadBalancerControllerIAMPolicy \
+  --version-id v3
+```
+
+*Note : Repeat this until only the default version is left.
+
+*Step 3: Now delete the policy
+```bash
+aws iam delete-policy \
+  --policy-arn arn:aws:iam::905418383993:policy/AWSLoadBalancerControllerIAMPolicy
+```
+
+*Recreate the policy with the correct content:
+```bash
+aws iam create-policy \
+  --policy-name AWSLoadBalancerControllerIAMPolicy \
+  --policy-document file://iam-policy.json
+```
