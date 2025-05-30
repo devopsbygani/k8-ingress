@@ -39,7 +39,7 @@ spec:
     port: 80    # service port
     targetPort: 80  # container port
 ---
-apiVersion: extensions/v1beta1
+apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
     name: echoserver
