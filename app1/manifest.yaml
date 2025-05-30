@@ -52,12 +52,16 @@ metadata:
         alb.ingress.kubernetes.io/tags: Environment=dev,Team=test
         alb.ingress.kubernetes.io/group.name: expense   # this creates a group , if same group is mentioned this will create a new routing rule not a new ALB.
 spec:
-  rules:
-    - host: app1.devgani.online
+    ingressClassName: alb
+    rules:
+    - host: "app1.daws81s.online"
       http:
         paths:
-          - path: /
-            backend:
-              serviceName: app1
-              servicePort: 80
+        - pathType: Prefix
+          path: "/"
+          backend:
+            service:
+              name: app1
+              port:
+                number: 80
 
