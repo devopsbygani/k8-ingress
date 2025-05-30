@@ -24,7 +24,7 @@ eksctl create iamserviceaccount \
 --cluster=expense \
 --namespace=kube-system \
 --name=aws-load-balancer-controller \
---attach-policy-arn=arn:aws:iam::905418383993:policy/AWSLoadBalancerControllerIAMPolicy \
+--attach-policy-arn=arn:aws:iam::<acoount_id>:policy/AWSLoadBalancerControllerIAMPolicy \
 --override-existing-serviceaccounts \
 --region us-east-1 \
 --approve
@@ -56,11 +56,12 @@ helm install aws-load-balancer-controller eks/aws-load-balancer-controller -n ku
 
 ### delete iam role and recreating.
 
-* Step 1: List all versions of the policy.
+Step 1: List all versions of the policy.
 ```bash
 aws iam list-policy-versions \
-  --policy-arn arn:aws:iam::905418383993:policy/AWSLoadBalancerControllerIAMPolicy
+  --policy-arn arn:aws:iam::<acoount_id>:policy/AWSLoadBalancerControllerIAMPolicy
 ```
+
 ### example output 
 ```
 {
@@ -80,28 +81,56 @@ aws iam list-policy-versions \
   ]
 }
 ```
-*Step 2: Delete all non-default versions
+
+Step 2: Delete all non-default versions
 ```
 aws iam delete-policy-version \
-  --policy-arn arn:aws:iam::905418383993:policy/AWSLoadBalancerControllerIAMPolicy \
+  --policy-arn arn:aws:iam::<acoount_id>:policy/AWSLoadBalancerControllerIAMPolicy \
   --version-id v4
 
 aws iam delete-policy-version \
-  --policy-arn arn:aws:iam::905418383993:policy/AWSLoadBalancerControllerIAMPolicy \
+  --policy-arn arn:aws:iam::<acoount_id>:policy/AWSLoadBalancerControllerIAMPolicy \
   --version-id v3
 ```
 
-*Note : Repeat this until only the default version is left.
+Note : Repeat this until only the default version is left.
 
 *Step 3: Now delete the policy
+
 ```bash
 aws iam delete-policy \
-  --policy-arn arn:aws:iam::905418383993:policy/AWSLoadBalancerControllerIAMPolicy
+  --policy-arn arn:aws:iam::<acoount_id>:policy/AWSLoadBalancerControllerIAMPolicy
+```
+if no error skip step4
+step4: Identify attached entities
+```
+if getting error An error occurred (DeleteConflict) when calling the DeletePolicy operation: Cannot delete a policy attached to entities.
+```
+step4.1:  Detach the policy from each role
+For each role listed under PolicyRoles, run:
+```bash
+aws iam detach-role-policy \
+  --role-name eksctl-expense-addon-iamserviceaccount-kube-s-Role1-3rOnTN0LfaQM \
+  --policy-arn arn:aws:iam::<account_id>:policy/AWSLoadBalancerControllerIAMPolicy
+```
+step4.2:
+```bash
+aws iam delete-policy \
+  --policy-arn arn:aws:iam::<acoount_id>:policy/AWSLoadBalancerControllerIAMPolicy
 ```
 
-*Recreate the policy with the correct content:
+step5: Recreate the policy with the correct content:
 ```bash
 aws iam create-policy \
   --policy-name AWSLoadBalancerControllerIAMPolicy \
   --policy-document file://iam-policy.json
+```
+
+step6: if helm already installed upgrade.
+```bash
+helm upgrade aws-load-balancer-controller eks/aws-load-balancer-controller \
+  -n kube-system \
+  --set clusterName=expense \
+  --set serviceAccount.create=false \
+  --set serviceAccount.name=aws-load-balancer-controller
 ```
