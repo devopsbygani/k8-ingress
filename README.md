@@ -126,7 +126,7 @@ aws iam create-policy \
   --policy-document file://iam-policy.json
 ```
 
-step6: if helm already installed upgrade.
+### step6: if helm already installed upgrade.
 ```bash
 helm upgrade aws-load-balancer-controller eks/aws-load-balancer-controller \
   -n kube-system \
