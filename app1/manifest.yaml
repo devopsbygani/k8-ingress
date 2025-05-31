@@ -47,7 +47,7 @@ metadata:
         #kubernetes.io/ingress.class: alb  # this creates ALB
         alb.ingress.kubernetes.io/scheme: internet-facing
         alb.ingress.kubernetes.io/target-type: ip
-        alb.ingress.kubernetes.io/certificate-arn: arn:aws:acm:us-east-1:905418383993:certificate/0a8e24a7-46b3-4e73-90de-4d115b1780e6
+        alb.ingress.kubernetes.io/certificate-arn: arn:aws:acm:us-east-1:905418383993:certificate/04360a64-cf7a-4444-8d2a-bd8db315f1f5
         alb.ingress.kubernetes.io/listen-ports: '[{"HTTPS": 443}]'
         alb.ingress.kubernetes.io/tags: Environment=dev,Team=test
         alb.ingress.kubernetes.io/group.name: expense   # this creates a group , if same group is mentioned this will create a new routing rule not a new ALB.
