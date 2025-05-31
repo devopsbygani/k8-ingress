@@ -42,7 +42,7 @@ spec:
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
-    name: echoserver
+    name: app2
     annotations:  # check for annotation in guide section from documentation
         #kubernetes.io/ingress.class: alb  # this creates ALB
         alb.ingress.kubernetes.io/scheme: internet-facing
@@ -54,7 +54,7 @@ metadata:
 spec:
     ingressClassName: alb
     rules:
-    - host: "app1.devgani.online"
+    - host: "app2.devgani.online"
       http:
         paths:
         - pathType: Prefix
